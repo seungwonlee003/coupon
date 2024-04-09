@@ -1,4 +1,4 @@
-package com.example.Coupon.dto.request;
+package com.example.coupon.dto.request;
 
 // userCoupon use
 public class UserCouponUsageRequest {

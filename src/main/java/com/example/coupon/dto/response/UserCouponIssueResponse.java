@@ -1,4 +1,4 @@
-package com.example.Coupon.dto.response;
+package com.example.coupon.dto.response;
 //
 public class UserCouponIssueResponse {
 }

@@ -1,4 +1,4 @@
-package com.example.Coupon.dto.request;
+package com.example.coupon.dto.request;
 
 // coupon delete
 public class CouponDeleteRequest {

@@ -1,9 +1,10 @@
-package com.example.Coupon.dto.response;
+package com.example.coupon.dto.response;
+
+import com.example.coupon.domain.Coupon;
 
 import java.time.LocalDateTime;
 
-// UserCoupon usage, update, delete
-public class UserCouponResponse {
+public class UserCouponReadResponse {
     private Long id;
     private Long userId;
     private Long couponId;
@@ -14,4 +15,5 @@ public class UserCouponResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+    private Coupon coupon;
 }
