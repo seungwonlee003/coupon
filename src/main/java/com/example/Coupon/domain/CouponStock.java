@@ -1,4 +1,4 @@
-package domain;
+package com.example.Coupon.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,10 +10,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-public class Coupon {
+public class CouponStock {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    // Count
-    LocalDateTime
+    private Long coupon_id;
+    private int count;
+    private LocalDateTime created_at;
+    private LocalDateTime updated_at;
+    private LocalDateTime deleted_at;
 }
