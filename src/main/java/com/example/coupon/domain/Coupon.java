@@ -30,9 +30,9 @@ public class Coupon {
         return type == 0 && count == 0 || type == 1 && count > 0;
     }
 
-    public static boolean validateDiscount_type(int discount_type, double discount_amount){
+    public static boolean validateDiscountType(int discount_type, double discount_amount){
         return discount_type == 0 && discount_amount > 0
-                || discount_type == 1 && discount_amount > 0 && discount_amount <= 100;
+                || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
     }
 
     public static boolean validateDate(LocalDateTime startDate, LocalDateTime endDate){

@@ -24,7 +24,7 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid coupon type");
 
         // valid discount_type
-        if(!Coupon.validateDiscount_type(couponRequest.getDiscount_type(), couponRequest.getDiscount_amount()))
+        if(!Coupon.validateDiscountType(couponRequest.getDiscount_type(), couponRequest.getDiscount_amount()))
             throw new IllegalArgumentException("Invalid discount type");
 
         // valid start_date and end_date
@@ -32,7 +32,7 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid date");
 
         // valid expire_minute
-        if(!Coupon.validateExpireMinute(couponRequest.getExpireMinute()))
+        if(!Coupon.validateExpireMinute(couponRequest.getExpire_minute()))
             throw new IllegalArgumentException("Invalid expire minute");
 
         Coupon coupon = new Coupon();
@@ -41,7 +41,7 @@ public class CouponService {
         coupon.setCount(couponRequest.getCount());
         coupon.setStart_date(couponRequest.getStart_date());
         coupon.setEnd_date(couponRequest.getEnd_date());
-        coupon.setExpire_minute(couponRequest.getExpireMinute());
+        coupon.setExpire_minute(couponRequest.getExpire_minute());
         coupon.setDiscount_type(couponRequest.getDiscount_type());
         coupon.setDiscount_amount(couponRequest.getDiscount_amount());
         coupon.setCreated_at(LocalDateTime.now());
@@ -73,7 +73,7 @@ public class CouponService {
         if(!Coupon.validateExpireMinute(couponUpdateRequest.getExpireMinute()))
             throw new IllegalArgumentException("Invalid expire minute");
 
-        if(!Coupon.validateDiscount_type(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
+        if(!Coupon.validateDiscountType(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
             throw new IllegalArgumentException("Invalid discount type");
 
         coupon.setName(couponUpdateRequest.getName());
