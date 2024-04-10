@@ -60,7 +60,8 @@ public class CouponService {
     public Coupon updateCoupon(CouponUpdateRequest couponUpdateRequest){
         // type and start_date cannot be changed and count can only be changed when type is 1
         // use load and save method for PUT
-        Coupon coupon = couponRepository.findById(couponUpdateRequest.getCouponId()).orElse(null);
+        Coupon coupon = couponRepository.findById(couponUpdateRequest.getCouponId())
+                .orElseThrow(null);
         if(coupon.getType() != couponUpdateRequest.getType())
             throw new IllegalArgumentException("Type cannot be changed");
 
@@ -93,7 +94,8 @@ public class CouponService {
     }
 
     public Coupon deleteCoupon(CouponDeleteRequest couponDeleteRequest){
-        Coupon coupon = couponRepository.findById(couponDeleteRequest.getCoupon_id()).orElse(null);
+        Coupon coupon = couponRepository.findById(couponDeleteRequest.getCoupon_id())
+                .orElseThrow();
         if(coupon.getDeleted_at() != null)
             throw new IllegalArgumentException("Coupon has already been deleted");
         coupon.setDeleted_at(LocalDateTime.now());
