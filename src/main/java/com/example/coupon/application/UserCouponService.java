@@ -1,7 +1,7 @@
 package com.example.coupon.application;
 
-import com.example.coupon.domain.UserCouponRedemption;
-import com.example.coupon.domain.UserCouponRedemptionRepository;
+import com.example.coupon.domain.UserCoupon;
+import com.example.coupon.domain.UserCouponRepository;
 import com.example.coupon.dto.request.UserCouponReadRequest;
 import com.example.coupon.dto.request.UserCouponIssueRequest;
 import com.example.coupon.dto.request.UserCouponUpdateRequest;
@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserCouponService {
-    private final UserCouponRedemptionRepository userCouponRedemptionRepository;
+    private final UserCouponRepository userCouponRepository;
     public void issueCoupon(UserCouponIssueRequest request){
-        userCouponRedemptionRepository.save(new UserCouponRedemption());
+        userCouponRepository.save(new UserCoupon());
     }
 
     public UserCouponReadResponse readCoupon(UserCouponReadRequest userCouponReadRequest){
