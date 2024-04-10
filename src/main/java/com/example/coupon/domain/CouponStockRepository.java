@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CouponStockRepository extends JpaRepository<CouponStock, Long> {
+    public CouponStock findByCoupon_id(Long couponId);
 }

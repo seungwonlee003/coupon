@@ -1,7 +1,9 @@
 package com.example.coupon.dto.request;
 
-import java.time.LocalDateTime;
+import lombok.Getter;
 
+import java.time.LocalDateTime;
+@Getter
 public class CouponUpdateRequest {
     private Long couponId;
     private String name;

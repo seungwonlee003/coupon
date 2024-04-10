@@ -58,10 +58,42 @@ public class CouponService {
     }
 
     public Coupon updateCoupon(CouponUpdateRequest couponUpdateRequest){
+        // type and start_date cannot be changed and count can only be changed when type is 1
+        // use load and save method for PUT
+        Coupon coupon = couponRepository.findById(couponUpdateRequest.getCouponId()).orElse(null);
+        if(coupon.getType() != couponUpdateRequest.getType())
+            throw new IllegalArgumentException("Type cannot be changed");
+
+        if(coupon.getType() == 0 && couponUpdateRequest.getCount() > 0 || couponUpdateRequest.getCount() < 0)
+            throw new IllegalArgumentException("Count cannot be changed with type 0");
+
+        if(!Coupon.validateDiscount_type(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
+            throw new IllegalArgumentException("Invalid discount type");
+
+        coupon.setName(couponUpdateRequest.getName());
+        coupon.setCount(coupon.getCount() + couponUpdateRequest.getCount());
+        coupon.setEnd_date(couponUpdateRequest.getEnd_date());
+        coupon.setDiscount_type(couponUpdateRequest.getDiscount_type());
+        coupon.setDiscount_amount(couponUpdateRequest.getDiscount_amount());
+        coupon.setUpdated_at(LocalDateTime.now());
+
+        CouponStock couponStock = couponStockRepository.findByCoupon_id(coupon.getId());
+        couponStock.setCount(couponStock.getCount() + couponUpdateRequest.getCount());
+        couponStock.setUpdated_at(LocalDateTime.now());
+        couponStockRepository.save(couponStock);
+
         return couponRepository.save(new Coupon());
     }
 
     public Coupon deleteCoupon(CouponDeleteRequest couponDeleteRequest){
-        return couponRepository.save(new Coupon());
+        Coupon coupon = couponRepository.findById(couponDeleteRequest.getCoupon_id()).orElse(null);
+        if(coupon.getDeleted_at() != null)
+            throw new IllegalArgumentException("Coupon has already been deleted");
+        coupon.setDeleted_at(LocalDateTime.now());
+
+        CouponStock couponStock = couponStockRepository.findByCoupon_id(coupon.getId());
+        couponStock.setUpdated_at(LocalDateTime.now());
+        couponStock.setDeleted_at(LocalDateTime.now());
+        return couponRepository.save(coupon);
     }
 }
