@@ -82,13 +82,14 @@ public class CouponService {
         coupon.setDiscount_type(couponUpdateRequest.getDiscount_type());
         coupon.setDiscount_amount(couponUpdateRequest.getDiscount_amount());
         coupon.setUpdated_at(LocalDateTime.now());
+        Coupon couponResponse = couponRepository.save(coupon);
 
-        CouponStock couponStock = couponStockRepository.findByCoupon_id(coupon.getId());
+        CouponStock couponStock = couponStockRepository.findByCoupon_id(couponResponse.getId());
         couponStock.setCount(couponStock.getCount() + couponUpdateRequest.getCount());
         couponStock.setUpdated_at(LocalDateTime.now());
         couponStockRepository.save(couponStock);
 
-        return couponRepository.save(new Coupon());
+        return couponResponse;
     }
 
     public Coupon deleteCoupon(CouponDeleteRequest couponDeleteRequest){
