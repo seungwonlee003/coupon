@@ -68,7 +68,7 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid expire minute");
     }
 
-    private void createCouponStock(final CouponRequest couponRequest, final long couponId) {
+    private void createCouponStock(final CouponRequest couponRequest, final Long couponId) {
         CouponStock couponStock = new CouponStock();
         couponStock.setCouponId(couponId);
         couponStock.setCount(couponRequest.getCount());
@@ -102,20 +102,20 @@ public class CouponService {
         return coupon;
     }
 
-    private void updateCouponStockCount(long couponId, int count) {
+    private void updateCouponStockCount(Long couponId, int count) {
         CouponStock couponStock = couponStockRepository.findByCouponId(couponId);
         couponStock.setCount(couponStock.getCount() + count);
         couponStockRepository.save(couponStock);
     }
 
     // deleteCoupon utility methods
-    private void saveCouponStock(long couponId) {
+    private void saveCouponStock(Long couponId) {
         CouponStock couponStock = couponStockRepository.findByCouponId(couponId);
         couponStock.setDeletedAt(LocalDateTime.now());
         couponStockRepository.save(couponStock);
     }
 
-    private Coupon findCouponById(long couponId) {
+    private Coupon findCouponById(Long couponId) {
         return couponRepository.findById(couponId)
                 // add exception
                 .orElseThrow(IllegalArgumentException::new);
@@ -128,11 +128,11 @@ public class CouponService {
 
     // Validation methods
     public boolean isValidType(final int type, final int count){
-        return type == 0 && count == 0 || type == 1 && count > 0;
+        return (type == 0 && count == 0) || (type == 1 && count > 0);
     }
 
     public boolean isValidDiscountType(final int discount_type, final double discount_amount){
-        return discount_type == 0 && discount_amount > 0
+        return (discount_type == 0 && discount_amount > 0)
                 || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
     }
 

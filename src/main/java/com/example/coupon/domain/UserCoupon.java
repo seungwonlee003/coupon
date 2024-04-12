@@ -1,37 +1,46 @@
 package com.example.coupon.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
-public class UserCoupon {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserCoupon extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
-    private Long user_id;
-    @NotNull
-    private Long coupon_id;
-    private Long product_id;
-    @NotNull
-    private LocalDateTime give_date;
-    private LocalDateTime used_date;
-    @NotNull
-    private LocalDateTime expire_date;
-    @NotNull
-    private int discount_type;
-    @NotNull
-    private double discount_amount;
-    @NotNull
-    private LocalDateTime created_at;
-    @NotNull
-    private LocalDateTime updated_at;
-    private LocalDateTime deleted_at;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "coupon_id", nullable = false)
+    private Long couponId;
+
+    @Column(name = "product_id", nullable = true)
+    private Long productId;
+
+    @Column(name = "give_date", nullable = false)
+    private LocalDateTime giveDate;
+
+    @Column(name = "used_date", nullable = true)
+    private LocalDateTime usedDate;
+
+    @Column(name = "expire_date", nullable = false)
+    private LocalDateTime expireDate;
+
+    @Column(name = "discount_type", nullable = false)
+    private int discountType;
+
+    @Column(name = "discount_amount", nullable = false)
+    private double discountAmount;
+
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
 }
