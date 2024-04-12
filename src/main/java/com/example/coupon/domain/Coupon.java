@@ -17,6 +17,9 @@ public class Coupon extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "coupon", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private CouponStock couponStock;
+
     @Column(name = "name", nullable = false)
     private String name;
 
