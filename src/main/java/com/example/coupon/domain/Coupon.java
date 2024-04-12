@@ -43,21 +43,4 @@ public class Coupon extends BaseEntity {
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
-
-    public static boolean validateType(int type, int count){
-        return type == 0 && count == 0 || type == 1 && count > 0;
-    }
-
-    public static boolean validateDiscountType(int discount_type, double discount_amount){
-        return discount_type == 0 && discount_amount > 0
-                || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
-    }
-
-    public static boolean validateDate(LocalDateTime startDate, LocalDateTime endDate){
-        return startDate.isAfter(LocalDateTime.now()) && startDate.isBefore(endDate);
-    }
-
-    public static boolean validateExpireMinute(int expireMinute){
-        return expireMinute > 0;
-    }
 }

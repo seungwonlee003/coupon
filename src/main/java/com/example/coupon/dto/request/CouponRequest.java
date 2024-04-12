@@ -34,23 +34,6 @@ public class CouponRequest {
     @NotNull
     private double discountAmount;
 
-    public void validate(){
-        if(!Coupon.validateType(type, count))
-            throw new IllegalArgumentException("Invalid coupon type");
-
-        // valid discount_type
-        if(!Coupon.validateDiscountType(discountType, discountAmount))
-            throw new IllegalArgumentException("Invalid discount type");
-
-        // valid start_date and end_date
-        if(!Coupon.validateDate(startDate, endDate))
-            throw new IllegalArgumentException("Invalid date");
-
-        // valid expire_minute
-        if(!Coupon.validateExpireMinute(expireMinute))
-            throw new IllegalArgumentException("Invalid expire minute");
-    }
-
     public Coupon toCoupon(){
         return Coupon.builder()
                 .name(name)
@@ -62,5 +45,4 @@ public class CouponRequest {
                 .discountType(discountType)
                 .discountAmount(discountAmount).build();
     }
-
 }

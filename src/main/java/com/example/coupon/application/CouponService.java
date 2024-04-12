@@ -21,64 +21,122 @@ public class CouponService {
 
     @Transactional
     public Coupon createCoupon(final CouponRequest couponRequest) {
-        // do this logic in entity class or dto class? mapping can be done in entity
-        // valid type
-        couponRequest.validate();
-        Coupon couponResponse = couponRepository.save(couponRequest.toCoupon());
-
-        CouponStock couponStock = new CouponStock();
-        couponStock.setCouponId(couponResponse.getId());
-        couponStock.setCount(couponRequest.getCount());
-        couponStockRepository.save(couponStock);
-        return couponResponse;
+        validate(couponRequest);
+        Coupon createdCoupon = couponRepository.save(couponRequest.toCoupon());
+        createCouponStock(couponRequest, createdCoupon.getId());
+        return createdCoupon;
     }
 
     @Transactional
     public Coupon updateCoupon(final CouponUpdateRequest couponUpdateRequest){
-        // type and start_date cannot be changed and count can only be changed when type is 1
-        // use load and save method for PUT
-        Coupon coupon = couponRepository.findById(couponUpdateRequest.getCouponId())
-                .orElseThrow(null);
+        Coupon coupon = findCouponById(couponUpdateRequest.getCouponId());
+        validate(coupon, couponUpdateRequest);
+
+        Coupon updateCouponInfo = updateCoupon(couponUpdateRequest, coupon);
+        Coupon updatedCoupon = couponRepository.save(updateCouponInfo);
+
+        updateCouponStockCount(updateCouponInfo.getId(), couponUpdateRequest.getCount());
+
+        return updatedCoupon;
+    }
+
+    @Transactional
+    public Coupon deleteCoupon(final CouponDeleteRequest couponDeleteRequest){
+        Coupon coupon = findCouponById(couponDeleteRequest.getCouponId());
+        if(coupon.getDeletedAt() != null)
+            throw new IllegalArgumentException("Coupon has already been deleted");
+        coupon.setDeletedAt(LocalDateTime.now());
+        saveCouponStock(coupon.getId()); // Save CouponStock
+
+        return couponRepository.save(coupon);
+    }
+
+    // createCoupon utility methods
+    private void validate(final CouponRequest couponRequest){
+        if(!validateType(couponRequest.getType(), couponRequest.getCount()))
+            throw new IllegalArgumentException("Invalid coupon type");
+
+        // valid discount_type
+        if(!validateDiscountType(couponRequest.getDiscountType(), couponRequest.getDiscountAmount()))
+            throw new IllegalArgumentException("Invalid discount type");
+
+        // valid start_date and end_date
+        if(!validateDate(couponRequest.getStartDate(), couponRequest.getEndDate()))
+            throw new IllegalArgumentException("Invalid date");
+
+        // valid expire_minute
+        if(!validateExpireMinute(couponRequest.getExpireMinute()))
+            throw new IllegalArgumentException("Invalid expire minute");
+    }
+
+    private void createCouponStock(final CouponRequest couponRequest, final long couponId) {
+        CouponStock couponStock = new CouponStock();
+        couponStock.setCouponId(couponId);
+        couponStock.setCount(couponRequest.getCount());
+        couponStockRepository.save(couponStock);
+    }
+
+
+    private void saveCouponStock(long couponId) {
+        CouponStock couponStock = couponStockRepository.findByCouponId(couponId);
+        couponStock.setDeletedAt(LocalDateTime.now());
+        couponStockRepository.save(couponStock);
+    }
+
+    private Coupon findCouponById(long couponId) {
+        return couponRepository.findById(couponId)
+                // add exception
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    // updateCoupon utility methods
+    private void validate(final Coupon coupon, final CouponUpdateRequest couponUpdateRequest){
         if(coupon.getType() != couponUpdateRequest.getType())
             throw new IllegalArgumentException("Type cannot be changed");
 
-        if(!Coupon.validateType(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
+        if(!validateType(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
             throw new IllegalArgumentException("Type is invalid");
 
         if(couponUpdateRequest.getEnd_date().isBefore(couponUpdateRequest.getStart_date()))
             throw new IllegalArgumentException("End date cannot be before start date");
 
-        if(!Coupon.validateExpireMinute(couponUpdateRequest.getExpireMinute()))
+        if(!validateExpireMinute(couponUpdateRequest.getExpireMinute()))
             throw new IllegalArgumentException("Invalid expire minute");
 
-        if(!Coupon.validateDiscountType(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
+        if(!validateDiscountType(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
             throw new IllegalArgumentException("Invalid discount type");
+    }
 
+    private Coupon updateCoupon(final CouponUpdateRequest couponUpdateRequest, final Coupon coupon){
         coupon.setName(couponUpdateRequest.getName());
         coupon.setCount(coupon.getCount() + couponUpdateRequest.getCount());
         coupon.setEndDate(couponUpdateRequest.getEnd_date());
         coupon.setDiscountType(couponUpdateRequest.getDiscount_type());
         coupon.setDiscountAmount(couponUpdateRequest.getDiscount_amount());
-        Coupon couponResponse = couponRepository.save(coupon);
-
-        CouponStock couponStock = couponStockRepository.findByCoupon_id(couponResponse.getId());
-        couponStock.setCount(couponStock.getCount() + couponUpdateRequest.getCount());
-        couponStockRepository.save(couponStock);
-
-        return couponResponse;
+        return coupon;
     }
 
-    @Transactional
-    public Coupon deleteCoupon(final CouponDeleteRequest couponDeleteRequest){
-        Coupon coupon = couponRepository.findById(couponDeleteRequest.getCoupon_id())
-                .orElseThrow();
-        if(coupon.getDeletedAt() != null)
-            throw new IllegalArgumentException("Coupon has already been deleted");
-        coupon.setDeletedAt(LocalDateTime.now());
-
-        CouponStock couponStock = couponStockRepository.findByCoupon_id(coupon.getId());
-        couponStock.setDeletedAt(LocalDateTime.now());
+    private void updateCouponStockCount(long couponId, int count) {
+        CouponStock couponStock = couponStockRepository.findByCouponId(couponId);
+        couponStock.setCount(couponStock.getCount() + count);
         couponStockRepository.save(couponStock);
-        return couponRepository.save(coupon);
+    }
+
+    // Validation methods
+    public boolean validateType(final int type, final int count){
+        return type == 0 && count == 0 || type == 1 && count > 0;
+    }
+
+    public boolean validateDiscountType(final int discount_type, final double discount_amount){
+        return discount_type == 0 && discount_amount > 0
+                || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
+    }
+
+    public boolean validateDate(final LocalDateTime startDate, final LocalDateTime endDate){
+        return startDate.isAfter(LocalDateTime.now()) && startDate.isBefore(endDate);
+    }
+
+    public static boolean validateExpireMinute(final int expireMinute){
+        return expireMinute > 0;
     }
 }

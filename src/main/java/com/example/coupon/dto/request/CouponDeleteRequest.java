@@ -7,5 +7,5 @@ import lombok.Getter;
 @Getter
 public class CouponDeleteRequest {
     @NotNull
-    private Long coupon_id;
+    private Long couponId;
 }
