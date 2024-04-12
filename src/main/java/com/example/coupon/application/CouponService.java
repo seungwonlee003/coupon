@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,14 +22,10 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final CouponStockRepository couponStockRepository;
 
+    // fetches all the coupons and its stock at once
     @Transactional
     public List<CouponResponse> getAllCoupons(){
-        // needs to see how many queries are executed since N+1 select could arise
-        // if all coupons are fetched and its corresponding stock entity is
-        // fetched one by one
-        return couponRepository.findAll().stream()
-                .map(CouponResponse::toCouponResponse)
-                .collect(Collectors.toList());
+        return couponStockRepository.findAllCouponsWithStock();
     }
 
     @Transactional
@@ -48,7 +44,7 @@ public class CouponService {
         Coupon updateCouponInfo = updateCoupon(couponUpdateRequest, coupon);
         Coupon updatedCoupon = couponRepository.save(updateCouponInfo);
 
-        updateCouponStockCount(coupon.getCouponStock(), couponUpdateRequest.getCount());
+        updateCouponStockCount(coupon, couponUpdateRequest.getCount());
 
         return updatedCoupon;
     }
@@ -58,7 +54,7 @@ public class CouponService {
         Coupon coupon = findCouponById(couponDeleteRequest.getCouponId());
         validate(coupon);
         coupon.setDeletedAt(LocalDateTime.now());
-        saveDeletedCouponStock(coupon.getCouponStock());
+        saveCouponStock(coupon); // Save CouponStock
 
         return couponRepository.save(coupon);
     }
@@ -83,7 +79,7 @@ public class CouponService {
 
     private void createCouponStock(final CouponRequest couponRequest, final Coupon coupon) {
         CouponStock newCouponStock  = new CouponStock();
-        newCouponStock.setCoupon(coupon);
+        newCouponStock.setCouponId(coupon.getId());
         newCouponStock.setCount(couponRequest.getCount());
         couponStockRepository.save(newCouponStock);
     }
@@ -115,13 +111,15 @@ public class CouponService {
         return coupon;
     }
 
-    private void updateCouponStockCount(CouponStock couponStock, int count) {
+    private void updateCouponStockCount(Coupon coupon, int count) {
+        CouponStock couponStock = couponStockRepository.findByCouponId(coupon.getId());
         couponStock.setCount(couponStock.getCount() + count);
         couponStockRepository.save(couponStock);
     }
 
     // deleteCoupon utility methods
-    private void saveDeletedCouponStock(CouponStock couponStock) {
+    private void saveCouponStock(Coupon coupon) {
+        CouponStock couponStock = couponStockRepository.findByCouponId(coupon.getId());
         couponStock.setDeletedAt(LocalDateTime.now());
         couponStockRepository.save(couponStock);
     }

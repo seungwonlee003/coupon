@@ -17,13 +17,9 @@ public class CouponStock extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // thought about using foreign key relationship instead of relying on ORM
-    // though, whenever a list of coupons is retrieved, coupon stocks should also be retrieved
-    // for updating coupon count which expects high concurrency, only coupon stock entity
-    // can be fetched with a JPQL query.
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id", referencedColumnName = "id", nullable = false)
-    private Coupon coupon;
+    // didn't do oneToOne relationship with coupon until there is a clear need.
+    @Column(name = "coupon_id", nullable = false)
+    private Long couponId;
 
     @Column(name = "count", nullable = false)
     private int count;

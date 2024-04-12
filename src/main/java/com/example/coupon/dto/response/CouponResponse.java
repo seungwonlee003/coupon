@@ -2,19 +2,18 @@ package com.example.coupon.dto.response;
 
 import com.example.coupon.domain.Coupon;
 import com.example.coupon.domain.CouponStock;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+
 public class CouponResponse {
     private Long id;
-
-    private CouponStock couponStock;
 
     private String name;
 
@@ -40,21 +39,18 @@ public class CouponResponse {
 
     private int stockCount;
 
-    public static CouponResponse toCouponResponse(Coupon coupon) {
-        return CouponResponse.builder()
-                .id(coupon.getId())
-                .name(coupon.getName())
-                .type(coupon.getType())
-                .count(coupon.getCount())
-                .startDate(coupon.getStartDate())
-                .endDate(coupon.getEndDate())
-                .expireMinute(coupon.getExpireMinute())
-                .discountType(coupon.getDiscountType())
-                .discountAmount(coupon.getDiscountAmount())
-                .createdAt(coupon.getCreatedAt())
-                .updatedAt(coupon.getUpdatedAt())
-                .deletedAt(coupon.getDeletedAt())
-                .stockCount(coupon.getCouponStock().getCount())
-                .build();
+    public CouponResponse(Coupon coupon, CouponStock couponStock) {
+        this.id = coupon.getId();
+        this.name = coupon.getName();
+        this.type = coupon.getType();
+        this.startDate = coupon.getStartDate();
+        this.endDate = coupon.getEndDate();
+        this.expireMinute = coupon.getExpireMinute();
+        this.discountType = coupon.getDiscountType();
+        this.discountAmount = coupon.getDiscountAmount();
+        this.createdAt = coupon.getCreatedAt();
+        this.updatedAt = coupon.getUpdatedAt();
+        this.deletedAt = coupon.getDeletedAt();
+        this.stockCount = couponStock.getCount();
     }
 }
