@@ -16,17 +16,17 @@ public class CouponController {
     private final CouponService couponService;
 
     @PostMapping("/create")
-    public Coupon createCoupon(@Valid CouponRequest couponRequest){
+    public Coupon createCoupon(@Valid final CouponRequest couponRequest){
         return couponService.createCoupon(couponRequest);
     }
 
     @PutMapping("/update")
-    public Coupon updateCoupon(@Valid CouponUpdateRequest couponUpdateRequest) {
+    public Coupon updateCoupon(@Valid final CouponUpdateRequest couponUpdateRequest) {
         return couponService.updateCoupon(couponUpdateRequest);
     }
 
     @DeleteMapping("/delete")
-    public Coupon deleteCoupon(@Valid CouponDeleteRequest couponDeleteRequest){
+    public Coupon deleteCoupon(@Valid final CouponDeleteRequest couponDeleteRequest){
         return couponService.deleteCoupon(couponDeleteRequest);
     }
 }

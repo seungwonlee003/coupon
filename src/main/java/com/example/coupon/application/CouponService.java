@@ -7,6 +7,7 @@ import com.example.coupon.domain.CouponStockRepository;
 import com.example.coupon.dto.request.CouponDeleteRequest;
 import com.example.coupon.dto.request.CouponRequest;
 import com.example.coupon.dto.request.CouponUpdateRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,8 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final CouponStockRepository couponStockRepository;
 
-    public Coupon createCoupon(CouponRequest couponRequest) {
+    @Transactional
+    public Coupon createCoupon(final CouponRequest couponRequest) {
         // valid type
         if(!Coupon.validateType(couponRequest.getType(), couponRequest.getCount()))
             throw new IllegalArgumentException("Invalid coupon type");
@@ -39,13 +41,13 @@ public class CouponService {
         coupon.setName(couponRequest.getName());
         coupon.setType(couponRequest.getType());
         coupon.setCount(couponRequest.getCount());
-        coupon.setStart_date(couponRequest.getStart_date());
-        coupon.setEnd_date(couponRequest.getEnd_date());
-        coupon.setExpire_minute(couponRequest.getExpire_minute());
-        coupon.setDiscount_type(couponRequest.getDiscount_type());
-        coupon.setDiscount_amount(couponRequest.getDiscount_amount());
-        coupon.setCreated_at(LocalDateTime.now());
-        coupon.setUpdated_at(LocalDateTime.now());
+        coupon.setStartDate(couponRequest.getStart_date());
+        coupon.setEndDate(couponRequest.getEnd_date());
+        coupon.setExpireMinute(couponRequest.getExpire_minute());
+        coupon.setDiscountType(couponRequest.getDiscount_type());
+        coupon.setDiscountAmount(couponRequest.getDiscount_amount());
+        coupon.setCreatedAt(LocalDateTime.now());
+        coupon.setUpdatedAt(LocalDateTime.now());
         Coupon couponResponse = couponRepository.save(coupon);
 
         CouponStock couponStock = new CouponStock();
@@ -57,7 +59,8 @@ public class CouponService {
         return couponResponse;
     }
 
-    public Coupon updateCoupon(CouponUpdateRequest couponUpdateRequest){
+    @Transactional
+    public Coupon updateCoupon(final CouponUpdateRequest couponUpdateRequest){
         // type and start_date cannot be changed and count can only be changed when type is 1
         // use load and save method for PUT
         Coupon coupon = couponRepository.findById(couponUpdateRequest.getCouponId())
@@ -65,8 +68,8 @@ public class CouponService {
         if(coupon.getType() != couponUpdateRequest.getType())
             throw new IllegalArgumentException("Type cannot be changed");
 
-        if(coupon.getType() == 0 && couponUpdateRequest.getCount() > 0 || couponUpdateRequest.getCount() < 0)
-            throw new IllegalArgumentException("Count cannot be changed with type 0");
+        if(!Coupon.validateType(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
+            throw new IllegalArgumentException("Type is invalid");
 
         if(couponUpdateRequest.getEnd_date().isBefore(couponUpdateRequest.getStart_date()))
             throw new IllegalArgumentException("End date cannot be before start date");
@@ -79,10 +82,10 @@ public class CouponService {
 
         coupon.setName(couponUpdateRequest.getName());
         coupon.setCount(coupon.getCount() + couponUpdateRequest.getCount());
-        coupon.setEnd_date(couponUpdateRequest.getEnd_date());
-        coupon.setDiscount_type(couponUpdateRequest.getDiscount_type());
-        coupon.setDiscount_amount(couponUpdateRequest.getDiscount_amount());
-        coupon.setUpdated_at(LocalDateTime.now());
+        coupon.setEndDate(couponUpdateRequest.getEnd_date());
+        coupon.setDiscountType(couponUpdateRequest.getDiscount_type());
+        coupon.setDiscountAmount(couponUpdateRequest.getDiscount_amount());
+        coupon.setUpdatedAt(LocalDateTime.now());
         Coupon couponResponse = couponRepository.save(coupon);
 
         CouponStock couponStock = couponStockRepository.findByCoupon_id(couponResponse.getId());
@@ -93,12 +96,13 @@ public class CouponService {
         return couponResponse;
     }
 
-    public Coupon deleteCoupon(CouponDeleteRequest couponDeleteRequest){
+    @Transactional
+    public Coupon deleteCoupon(final CouponDeleteRequest couponDeleteRequest){
         Coupon coupon = couponRepository.findById(couponDeleteRequest.getCoupon_id())
                 .orElseThrow();
-        if(coupon.getDeleted_at() != null)
+        if(coupon.getDeletedAt() != null)
             throw new IllegalArgumentException("Coupon has already been deleted");
-        coupon.setDeleted_at(LocalDateTime.now());
+        coupon.setDeletedAt(LocalDateTime.now());
 
         CouponStock couponStock = couponStockRepository.findByCoupon_id(coupon.getId());
         couponStock.setUpdated_at(LocalDateTime.now());

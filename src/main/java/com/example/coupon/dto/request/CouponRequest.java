@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 
 @Getter
 // coupon create and update
-public class CouponRequest {
-    @NotNull
+public class CouponRequest {    @NotNull
+
     private String name;
     @NotNull
     private int type;

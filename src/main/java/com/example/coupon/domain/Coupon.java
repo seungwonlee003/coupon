@@ -1,45 +1,48 @@
 package com.example.coupon.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Coupon {
+public class Coupon extends BaseEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+
+    @Column(name = "name", nullable = false)
     private String name;
-    @NotNull
+
+    @Column(name = "type", nullable = false)
     private int type;
-    @NotNull
+
+    @Column(name = "count", nullable = false)
     private int count;
-    @NotNull
-    private LocalDateTime start_date;
-    @NotNull
-    private LocalDateTime end_date;
-    @NotNull
-    private int expire_minute;
-    @NotNull
-    private int discount_type;
-    @NotNull
-    private double discount_amount;
-    @NotNull
-    private LocalDateTime created_at;
-    @NotNull
-    private LocalDateTime updated_at;
-    private LocalDateTime deleted_at;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime endDate;
+
+    @Column(name = "expire_minute", nullable = false)
+    private int expireMinute;
+
+    @Column(name = "discount_type", nullable = false)
+    private int discountType;
+
+    @Column(name = "discount_amount", nullable = false)
+    private double discountAmount;
+
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
 
     public static boolean validateType(int type, int count){
         return type == 0 && count == 0 || type == 1 && count > 0;
