@@ -43,8 +43,7 @@ public class CouponService {
     @Transactional
     public Coupon deleteCoupon(final CouponDeleteRequest couponDeleteRequest){
         Coupon coupon = findCouponById(couponDeleteRequest.getCouponId());
-        if(coupon.getDeletedAt() != null)
-            throw new IllegalArgumentException("Coupon has already been deleted");
+        validate(coupon);
         coupon.setDeletedAt(LocalDateTime.now());
         saveCouponStock(coupon.getId()); // Save CouponStock
 
@@ -53,19 +52,19 @@ public class CouponService {
 
     // createCoupon utility methods
     private void validate(final CouponRequest couponRequest){
-        if(!validateType(couponRequest.getType(), couponRequest.getCount()))
+        if(!isValidType(couponRequest.getType(), couponRequest.getCount()))
             throw new IllegalArgumentException("Invalid coupon type");
 
         // valid discount_type
-        if(!validateDiscountType(couponRequest.getDiscountType(), couponRequest.getDiscountAmount()))
+        if(!isValidDiscountType(couponRequest.getDiscountType(), couponRequest.getDiscountAmount()))
             throw new IllegalArgumentException("Invalid discount type");
 
         // valid start_date and end_date
-        if(!validateDate(couponRequest.getStartDate(), couponRequest.getEndDate()))
+        if(!isValidDate(couponRequest.getStartDate(), couponRequest.getEndDate()))
             throw new IllegalArgumentException("Invalid date");
 
         // valid expire_minute
-        if(!validateExpireMinute(couponRequest.getExpireMinute()))
+        if(!isValidExpireMinute(couponRequest.getExpireMinute()))
             throw new IllegalArgumentException("Invalid expire minute");
     }
 
@@ -76,34 +75,21 @@ public class CouponService {
         couponStockRepository.save(couponStock);
     }
 
-
-    private void saveCouponStock(long couponId) {
-        CouponStock couponStock = couponStockRepository.findByCouponId(couponId);
-        couponStock.setDeletedAt(LocalDateTime.now());
-        couponStockRepository.save(couponStock);
-    }
-
-    private Coupon findCouponById(long couponId) {
-        return couponRepository.findById(couponId)
-                // add exception
-                .orElseThrow(IllegalArgumentException::new);
-    }
-
     // updateCoupon utility methods
     private void validate(final Coupon coupon, final CouponUpdateRequest couponUpdateRequest){
         if(coupon.getType() != couponUpdateRequest.getType())
             throw new IllegalArgumentException("Type cannot be changed");
 
-        if(!validateType(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
+        if(!isValidType(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
             throw new IllegalArgumentException("Type is invalid");
 
         if(couponUpdateRequest.getEnd_date().isBefore(couponUpdateRequest.getStart_date()))
             throw new IllegalArgumentException("End date cannot be before start date");
 
-        if(!validateExpireMinute(couponUpdateRequest.getExpireMinute()))
+        if(!isValidExpireMinute(couponUpdateRequest.getExpireMinute()))
             throw new IllegalArgumentException("Invalid expire minute");
 
-        if(!validateDiscountType(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
+        if(!isValidDiscountType(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
             throw new IllegalArgumentException("Invalid discount type");
     }
 
@@ -122,21 +108,39 @@ public class CouponService {
         couponStockRepository.save(couponStock);
     }
 
+    // deleteCoupon utility methods
+    private void saveCouponStock(long couponId) {
+        CouponStock couponStock = couponStockRepository.findByCouponId(couponId);
+        couponStock.setDeletedAt(LocalDateTime.now());
+        couponStockRepository.save(couponStock);
+    }
+
+    private Coupon findCouponById(long couponId) {
+        return couponRepository.findById(couponId)
+                // add exception
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private void validate(Coupon coupon){
+        if(coupon.getDeletedAt() != null)
+            throw new IllegalArgumentException("Coupon has already been deleted");
+    }
+
     // Validation methods
-    public boolean validateType(final int type, final int count){
+    public boolean isValidType(final int type, final int count){
         return type == 0 && count == 0 || type == 1 && count > 0;
     }
 
-    public boolean validateDiscountType(final int discount_type, final double discount_amount){
+    public boolean isValidDiscountType(final int discount_type, final double discount_amount){
         return discount_type == 0 && discount_amount > 0
                 || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
     }
 
-    public boolean validateDate(final LocalDateTime startDate, final LocalDateTime endDate){
+    public boolean isValidDate(final LocalDateTime startDate, final LocalDateTime endDate){
         return startDate.isAfter(LocalDateTime.now()) && startDate.isBefore(endDate);
     }
 
-    public static boolean validateExpireMinute(final int expireMinute){
+    public static boolean isValidExpireMinute(final int expireMinute){
         return expireMinute > 0;
     }
 }
