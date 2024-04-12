@@ -21,40 +21,14 @@ public class CouponService {
 
     @Transactional
     public Coupon createCoupon(final CouponRequest couponRequest) {
+        // do this logic in entity class or dto class? mapping can be done in entity
         // valid type
-        if(!Coupon.validateType(couponRequest.getType(), couponRequest.getCount()))
-            throw new IllegalArgumentException("Invalid coupon type");
-
-        // valid discount_type
-        if(!Coupon.validateDiscountType(couponRequest.getDiscount_type(), couponRequest.getDiscount_amount()))
-            throw new IllegalArgumentException("Invalid discount type");
-
-        // valid start_date and end_date
-        if(!Coupon.validateDate(couponRequest.getStart_date(), couponRequest.getEnd_date()))
-            throw new IllegalArgumentException("Invalid date");
-
-        // valid expire_minute
-        if(!Coupon.validateExpireMinute(couponRequest.getExpire_minute()))
-            throw new IllegalArgumentException("Invalid expire minute");
-
-        Coupon coupon = new Coupon();
-        coupon.setName(couponRequest.getName());
-        coupon.setType(couponRequest.getType());
-        coupon.setCount(couponRequest.getCount());
-        coupon.setStartDate(couponRequest.getStart_date());
-        coupon.setEndDate(couponRequest.getEnd_date());
-        coupon.setExpireMinute(couponRequest.getExpire_minute());
-        coupon.setDiscountType(couponRequest.getDiscount_type());
-        coupon.setDiscountAmount(couponRequest.getDiscount_amount());
-        coupon.setCreatedAt(LocalDateTime.now());
-        coupon.setUpdatedAt(LocalDateTime.now());
-        Coupon couponResponse = couponRepository.save(coupon);
+        couponRequest.validate();
+        Coupon couponResponse = couponRepository.save(couponRequest.toCoupon());
 
         CouponStock couponStock = new CouponStock();
-        couponStock.setCoupon_id(couponResponse.getId());
+        couponStock.setCouponId(couponResponse.getId());
         couponStock.setCount(couponRequest.getCount());
-        couponStock.setCreated_at(LocalDateTime.now());
-        couponStock.setUpdated_at(LocalDateTime.now());
         couponStockRepository.save(couponStock);
         return couponResponse;
     }
@@ -85,12 +59,10 @@ public class CouponService {
         coupon.setEndDate(couponUpdateRequest.getEnd_date());
         coupon.setDiscountType(couponUpdateRequest.getDiscount_type());
         coupon.setDiscountAmount(couponUpdateRequest.getDiscount_amount());
-        coupon.setUpdatedAt(LocalDateTime.now());
         Coupon couponResponse = couponRepository.save(coupon);
 
         CouponStock couponStock = couponStockRepository.findByCoupon_id(couponResponse.getId());
         couponStock.setCount(couponStock.getCount() + couponUpdateRequest.getCount());
-        couponStock.setUpdated_at(LocalDateTime.now());
         couponStockRepository.save(couponStock);
 
         return couponResponse;
@@ -105,8 +77,7 @@ public class CouponService {
         coupon.setDeletedAt(LocalDateTime.now());
 
         CouponStock couponStock = couponStockRepository.findByCoupon_id(coupon.getId());
-        couponStock.setUpdated_at(LocalDateTime.now());
-        couponStock.setDeleted_at(LocalDateTime.now());
+        couponStock.setDeletedAt(LocalDateTime.now());
         couponStockRepository.save(couponStock);
         return couponRepository.save(coupon);
     }

@@ -2,27 +2,24 @@ package com.example.coupon.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CouponStock {
+public class CouponStock extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotNull
-    private Long coupon_id;
-    @NotNull
+    @Column(name = "coupon_id", nullable = false)
+    private Long couponId;
+    @Column(name = "count", nullable = false)
     private int count;
-    @NotNull
-    private LocalDateTime created_at;
-    @NotNull
-    private LocalDateTime updated_at;
-    private LocalDateTime deleted_at;
+    @Column(name = "deleted_at", nullable = true)
+    private LocalDateTime deletedAt;
 }
