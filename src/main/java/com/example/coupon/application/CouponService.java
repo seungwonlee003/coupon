@@ -29,7 +29,7 @@ public class CouponService {
     // fetches all the coupons and its stock count at once using join fetch
     // Q: use projection since not all fields in stock needs to be retrieved?
     // A: no cuz coupon stock entity isn't big enough for the cost of code complexity
-    public List<CouponResponse> getAllCoupons(CouponFetchRequest couponFetchRequest) {
+    public List<CouponResponse> getAllCoupons(final CouponFetchRequest couponFetchRequest) {
         Slice<Coupon> couponSlice = couponFetchRequest.getLastCouponId() == null ?
                 couponRepository.findFirstNCouponsWithStock(PageRequest.of(0, couponFetchRequest.getLimit(), Sort.by(Sort.Direction.DESC, "id"))) :
                 couponRepository.findNextNCouponsWithStock(couponFetchRequest.getLastCouponId(), PageRequest.of(0, couponFetchRequest.getLimit(), Sort.by(Sort.Direction.DESC, "id")));
@@ -42,8 +42,9 @@ public class CouponService {
     @Transactional
     public Coupon createCoupon(final CouponRequest couponRequest) {
         validate(couponRequest);
+        // for retrieving db generated id
         Coupon createdCoupon = couponRepository.save(couponRequest.toCoupon());
-        createCouponStock(couponRequest, createdCoupon);
+        createCouponStock(createdCoupon);
         return createdCoupon;
     }
 
@@ -88,8 +89,8 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid expire minute");
     }
 
-    private void createCouponStock(final CouponRequest couponRequest, final Coupon coupon) {
-        couponStockRepository.save(new CouponStock(coupon, couponRequest.getCount()));
+    private void createCouponStock(final Coupon coupon) {
+        couponStockRepository.save(new CouponStock(coupon, coupon.getCount()));
     }
 
     // updateCoupon utility methods
