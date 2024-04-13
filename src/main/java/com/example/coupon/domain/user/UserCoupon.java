@@ -1,7 +1,7 @@
-package com.example.coupon.domain;
+package com.example.coupon.domain.user;
 
+import com.example.coupon.domain.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;

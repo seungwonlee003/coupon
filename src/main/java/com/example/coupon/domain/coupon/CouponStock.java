@@ -1,7 +1,7 @@
-package com.example.coupon.domain;
+package com.example.coupon.domain.coupon;
 
+import com.example.coupon.domain.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,13 +17,18 @@ public class CouponStock extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // didn't do oneToOne relationship with coupon until there is a clear need.
-    @Column(name = "coupon_id", nullable = false)
-    private Long couponId;
+    @OneToOne
+    @JoinColumn(name = "coupon_id", referencedColumnName = "id", nullable = false)
+    private Coupon coupon;
 
     @Column(name = "count", nullable = false)
     private int count;
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
+
+    public CouponStock(Coupon coupon, int count) {
+        this.coupon = coupon;
+        this.count = count;
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.coupon.dto.response;
 
-import com.example.coupon.domain.Coupon;
-import com.example.coupon.domain.CouponStock;
+import com.example.coupon.domain.coupon.Coupon;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Setter
-
 public class CouponResponse {
     private Long id;
 
@@ -39,7 +37,7 @@ public class CouponResponse {
 
     private int stockCount;
 
-    public CouponResponse(Coupon coupon, CouponStock couponStock) {
+    public CouponResponse(Coupon coupon) {
         this.id = coupon.getId();
         this.name = coupon.getName();
         this.type = coupon.getType();
@@ -51,6 +49,6 @@ public class CouponResponse {
         this.createdAt = coupon.getCreatedAt();
         this.updatedAt = coupon.getUpdatedAt();
         this.deletedAt = coupon.getDeletedAt();
-        this.stockCount = couponStock.getCount();
+        this.stockCount = coupon.getCouponStock().getCount();
     }
 }

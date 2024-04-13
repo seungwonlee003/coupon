@@ -1,4 +1,4 @@
-package com.example.coupon.domain;
+package com.example.coupon.domain.coupon;
 
 import com.example.coupon.dto.response.CouponResponse;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,7 +1,7 @@
 package com.example.coupon.application;
 
-import com.example.coupon.domain.UserCoupon;
-import com.example.coupon.domain.UserCouponRepository;
+import com.example.coupon.domain.user.UserCoupon;
+import com.example.coupon.domain.user.UserCouponRepository;
 import com.example.coupon.dto.request.UserCouponReadRequest;
 import com.example.coupon.dto.request.UserCouponIssueRequest;
 import com.example.coupon.dto.request.UserCouponUpdateRequest;

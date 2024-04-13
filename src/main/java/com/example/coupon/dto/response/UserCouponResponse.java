@@ -1,7 +1,5 @@
 package com.example.coupon.dto.response;
 
-import com.example.coupon.domain.Coupon;
-
 import java.time.LocalDateTime;
 
 // UserCoupon usage, cancel, delete

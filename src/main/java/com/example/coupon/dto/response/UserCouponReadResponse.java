@@ -1,6 +1,6 @@
 package com.example.coupon.dto.response;
 
-import com.example.coupon.domain.Coupon;
+import com.example.coupon.domain.coupon.Coupon;
 
 import java.time.LocalDateTime;
 

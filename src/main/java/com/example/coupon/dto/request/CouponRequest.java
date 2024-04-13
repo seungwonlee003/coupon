@@ -1,7 +1,6 @@
 package com.example.coupon.dto.request;
 
-import com.example.coupon.domain.Coupon;
-import com.example.coupon.domain.CouponStock;
+import com.example.coupon.domain.coupon.Coupon;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 

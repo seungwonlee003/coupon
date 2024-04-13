@@ -1,20 +1,24 @@
 package com.example.coupon.application;
 
-import com.example.coupon.domain.Coupon;
-import com.example.coupon.domain.CouponRepository;
-import com.example.coupon.domain.CouponStock;
-import com.example.coupon.domain.CouponStockRepository;
+import com.example.coupon.domain.coupon.Coupon;
+import com.example.coupon.domain.coupon.CouponRepository;
+import com.example.coupon.domain.coupon.CouponStock;
+import com.example.coupon.domain.coupon.CouponStockRepository;
 import com.example.coupon.dto.request.CouponDeleteRequest;
+import com.example.coupon.dto.request.CouponFetchRequest;
 import com.example.coupon.dto.request.CouponRequest;
 import com.example.coupon.dto.request.CouponUpdateRequest;
 import com.example.coupon.dto.response.CouponResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +26,17 @@ public class CouponService {
     private final CouponRepository couponRepository;
     private final CouponStockRepository couponStockRepository;
 
-    // fetches all the coupons and its stock at once
-    @Transactional
-    public List<CouponResponse> getAllCoupons(){
-        return couponStockRepository.findAllCouponsWithStock();
+    // fetches all the coupons and its stock count at once using join fetch
+    // Q: use projection since not all fields in stock needs to be retrieved?
+    // A: no cuz coupon stock entity isn't big enough for the cost of code complexity
+    public List<CouponResponse> getAllCoupons(CouponFetchRequest couponFetchRequest) {
+        Slice<Coupon> couponSlice = couponFetchRequest.getLastCouponId() == null ?
+                couponRepository.findFirstNCouponsWithStock(PageRequest.of(0, couponFetchRequest.getLimit(), Sort.by(Sort.Direction.DESC, "id"))) :
+                couponRepository.findNextNCouponsWithStock(couponFetchRequest.getLastCouponId(), PageRequest.of(0, couponFetchRequest.getLimit(), Sort.by(Sort.Direction.DESC, "id")));
+
+        return couponSlice.stream()
+                .map(CouponResponse::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -54,7 +65,7 @@ public class CouponService {
         Coupon coupon = findCouponById(couponDeleteRequest.getCouponId());
         validate(coupon);
         coupon.setDeletedAt(LocalDateTime.now());
-        saveCouponStock(coupon); // Save CouponStock
+        saveCouponStock(coupon);
 
         return couponRepository.save(coupon);
     }
@@ -78,10 +89,7 @@ public class CouponService {
     }
 
     private void createCouponStock(final CouponRequest couponRequest, final Coupon coupon) {
-        CouponStock newCouponStock  = new CouponStock();
-        newCouponStock.setCouponId(coupon.getId());
-        newCouponStock.setCount(couponRequest.getCount());
-        couponStockRepository.save(newCouponStock);
+        couponStockRepository.save(new CouponStock(coupon, couponRequest.getCount()));
     }
 
     // updateCoupon utility methods
@@ -112,14 +120,14 @@ public class CouponService {
     }
 
     private void updateCouponStockCount(Coupon coupon, int count) {
-        CouponStock couponStock = couponStockRepository.findByCouponId(coupon.getId());
+        CouponStock couponStock = coupon.getCouponStock();
         couponStock.setCount(couponStock.getCount() + count);
         couponStockRepository.save(couponStock);
     }
 
     // deleteCoupon utility methods
     private void saveCouponStock(Coupon coupon) {
-        CouponStock couponStock = couponStockRepository.findByCouponId(coupon.getId());
+        CouponStock couponStock = coupon.getCouponStock();
         couponStock.setDeletedAt(LocalDateTime.now());
         couponStockRepository.save(couponStock);
     }

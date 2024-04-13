@@ -1,7 +1,7 @@
-package com.example.coupon.domain;
+package com.example.coupon.domain.coupon;
 
+import com.example.coupon.domain.BaseEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +16,9 @@ public class Coupon extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne(mappedBy = "coupon", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private CouponStock couponStock;
 
     @Column(name = "name", nullable = false)
     private String name;
