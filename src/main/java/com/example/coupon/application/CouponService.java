@@ -71,13 +71,13 @@ public class CouponService {
         return couponRepository.save(coupon);
     }
 
-    // createCoupon utility methods
+    // createCoupon helper methods
     private void validate(final CouponRequest couponRequest){
-        if(!isValidCouponType(couponRequest.getType(), couponRequest.getCount()))
+        if(!isCouponTypeValid(couponRequest.getType(), couponRequest.getCount()))
             throw new IllegalArgumentException("Invalid coupon type");
 
         // valid discount_type
-        if(!isValidDiscountType(couponRequest.getDiscountType(), couponRequest.getDiscountAmount()))
+        if(!isDiscountTypeValid(couponRequest.getDiscountType(), couponRequest.getDiscountAmount()))
             throw new IllegalArgumentException("Invalid discount type");
 
         // valid start_date and end_date
@@ -85,7 +85,7 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid date");
 
         // valid expire_minute
-        if(!isValidExpireMinute(couponRequest.getExpireMinute()))
+        if(!isExpireMinuteValid(couponRequest.getExpireMinute()))
             throw new IllegalArgumentException("Invalid expire minute");
     }
 
@@ -93,21 +93,21 @@ public class CouponService {
         couponStockRepository.save(new CouponStock(coupon, coupon.getCount()));
     }
 
-    // updateCoupon utility methods
+    // updateCoupon helper methods
     private void validate(final Coupon coupon, final CouponUpdateRequest couponUpdateRequest){
         if(coupon.getType() != couponUpdateRequest.getType())
             throw new IllegalArgumentException("Type cannot be changed");
 
-        if(!isValidCouponType(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
+        if(!isCouponTypeValid(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
             throw new IllegalArgumentException("Type is invalid");
 
         if(couponUpdateRequest.getEnd_date().isBefore(couponUpdateRequest.getStart_date()))
             throw new IllegalArgumentException("End date cannot be before start date");
 
-        if(!isValidExpireMinute(couponUpdateRequest.getExpireMinute()))
+        if(!isExpireMinuteValid(couponUpdateRequest.getExpireMinute()))
             throw new IllegalArgumentException("Invalid expire minute");
 
-        if(!isValidDiscountType(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
+        if(!isDiscountTypeValid(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
             throw new IllegalArgumentException("Invalid discount type");
     }
 
@@ -126,7 +126,7 @@ public class CouponService {
         couponStockRepository.save(couponStock);
     }
 
-    // deleteCoupon utility methods
+    // deleteCoupon helper methods
     private void saveCouponStock(Coupon coupon) {
         CouponStock couponStock = coupon.getCouponStock();
         couponStock.setDeletedAt(LocalDateTime.now());
@@ -145,11 +145,11 @@ public class CouponService {
     }
 
     // Validation methods
-    public boolean isValidCouponType(final int type, final int count){
+    public boolean isCouponTypeValid(final int type, final int count){
         return (type == 0 && count == 0) || (type == 1 && count > 0);
     }
 
-    public boolean isValidDiscountType(final int discount_type, final double discount_amount){
+    public boolean isDiscountTypeValid(final int discount_type, final double discount_amount){
         return (discount_type == 0 && discount_amount > 0)
                 || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
     }
@@ -158,7 +158,7 @@ public class CouponService {
         return startDate.isAfter(LocalDateTime.now()) && startDate.isBefore(endDate);
     }
 
-    public static boolean isValidExpireMinute(final int expireMinute){
+    public static boolean isExpireMinuteValid(final int expireMinute){
         return expireMinute > 0;
     }
 }

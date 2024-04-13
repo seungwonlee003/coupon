@@ -14,23 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class UserCouponController {
     private final UserCouponService userCouponService;
-    public void issueCoupon(UserCouponIssueRequest request){
-        userCouponService.issueCoupon(request);
+    public void issueUserCoupon(final UserCouponIssueRequest request){
+        userCouponService.issueUserCoupon(request);
     }
 
-    public UserCouponReadResponse readCoupon(UserCouponReadRequest userCouponReadRequest){
-        return userCouponService.readCoupon(userCouponReadRequest);
+    public UserCouponReadResponse readUserCoupon(final UserCouponReadRequest userCouponReadRequest){
+        return userCouponService.readUserCoupon(userCouponReadRequest);
     }
 
-    public UserCouponResponse useCoupon(UserCouponUsageRequest userCouponUsageRequest){
-        return userCouponService.useCoupon(userCouponUsageRequest);
+    public UserCouponResponse useUserCoupon(final UserCouponUsageRequest userCouponUsageRequest){
+        return userCouponService.useUserCoupon(userCouponUsageRequest);
     }
 
-    public UserCouponResponse cancelCoupon(UserCouponUpdateRequest userCouponUpdateRequest){
-        return userCouponService.cancelCoupon(userCouponUpdateRequest);
+    public UserCouponResponse cancelUserCoupon(final UserCouponUpdateRequest userCouponUpdateRequest){
+        return userCouponService.cancelUserCoupon(userCouponUpdateRequest);
     }
 
-    public UserCouponResponse deleteCoupon(UserCouponUpdateRequest userCouponUpdateRequest){
-        return userCouponService.deleteCoupon(userCouponUpdateRequest);
+    public UserCouponResponse deleteUserCoupon(final UserCouponUpdateRequest userCouponUpdateRequest){
+        return userCouponService.deleteUserCoupon(userCouponUpdateRequest);
     }
 }

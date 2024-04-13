@@ -7,6 +7,12 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(
+        name = "user_coupon",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "coupon_id"})
+        }
+)
 @Getter
 @Setter
 @Builder
