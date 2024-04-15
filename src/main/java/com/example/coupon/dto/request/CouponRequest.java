@@ -2,11 +2,13 @@ package com.example.coupon.dto.request;
 
 import com.example.coupon.domain.coupon.Coupon;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Builder
 // coupon create and update
 public class CouponRequest {
     @NotNull

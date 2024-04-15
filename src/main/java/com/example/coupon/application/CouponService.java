@@ -42,7 +42,6 @@ public class CouponService {
     @Transactional
     public Coupon createCoupon(final CouponRequest couponRequest) {
         validate(couponRequest);
-        // for retrieving db generated id
         Coupon createdCoupon = couponRepository.save(couponRequest.toCoupon());
         createCouponStock(createdCoupon);
         return createdCoupon;
@@ -53,8 +52,7 @@ public class CouponService {
         Coupon coupon = findCouponById(couponUpdateRequest.getCouponId());
         validate(coupon, couponUpdateRequest);
 
-        Coupon updateCouponInfo = updateCoupon(couponUpdateRequest, coupon);
-        Coupon updatedCoupon = couponRepository.save(updateCouponInfo);
+        Coupon updatedCoupon = couponRepository.save(couponUpdateRequest.overwriteToCoupon(coupon));
 
         updateCouponStockCount(coupon, couponUpdateRequest.getCount());
 
@@ -97,27 +95,7 @@ public class CouponService {
     private void validate(final Coupon coupon, final CouponUpdateRequest couponUpdateRequest){
         if(coupon.getType() != couponUpdateRequest.getType())
             throw new IllegalArgumentException("Type cannot be changed");
-
-        if(!isCouponTypeValid(couponUpdateRequest.getType(), couponUpdateRequest.getCount()))
-            throw new IllegalArgumentException("Type is invalid");
-
-        if(couponUpdateRequest.getEnd_date().isBefore(couponUpdateRequest.getStart_date()))
-            throw new IllegalArgumentException("End date cannot be before start date");
-
-        if(!isExpireMinuteValid(couponUpdateRequest.getExpireMinute()))
-            throw new IllegalArgumentException("Invalid expire minute");
-
-        if(!isDiscountTypeValid(couponUpdateRequest.getDiscount_type(), couponUpdateRequest.getDiscount_amount()))
-            throw new IllegalArgumentException("Invalid discount type");
-    }
-
-    private Coupon updateCoupon(final CouponUpdateRequest couponUpdateRequest, final Coupon coupon){
-        coupon.setName(couponUpdateRequest.getName());
-        coupon.setCount(coupon.getCount() + couponUpdateRequest.getCount());
-        coupon.setEndDate(couponUpdateRequest.getEnd_date());
-        coupon.setDiscountType(couponUpdateRequest.getDiscount_type());
-        coupon.setDiscountAmount(couponUpdateRequest.getDiscount_amount());
-        return coupon;
+        validate(couponUpdateRequest.toCouponRequest());
     }
 
     private void updateCouponStockCount(Coupon coupon, int count) {
