@@ -79,7 +79,7 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid discount type");
 
         // valid start_date and end_date
-        if(!isValidDate(couponRequest.getStartDate(), couponRequest.getEndDate()))
+        if(!isDateValid(couponRequest.getStartDate(), couponRequest.getEndDate()))
             throw new IllegalArgumentException("Invalid date");
 
         // valid expire_minute
@@ -132,7 +132,7 @@ public class CouponService {
                 || (discount_type == 1 && discount_amount > 0 && discount_amount <= 100);
     }
 
-    public boolean isValidDate(final LocalDateTime startDate, final LocalDateTime endDate){
+    public boolean isDateValid(final LocalDateTime startDate, final LocalDateTime endDate){
         return startDate.isAfter(LocalDateTime.now()) && startDate.isBefore(endDate);
     }
 

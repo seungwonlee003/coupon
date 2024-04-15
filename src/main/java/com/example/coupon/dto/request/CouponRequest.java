@@ -4,10 +4,12 @@ import com.example.coupon.domain.coupon.Coupon;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @Builder
 // coupon create and update
 public class CouponRequest {
