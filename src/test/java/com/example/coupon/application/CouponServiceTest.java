@@ -9,6 +9,8 @@ import com.example.coupon.dto.request.CouponRequest;
 import com.example.coupon.dto.response.CouponResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,10 +37,31 @@ public class CouponServiceTest {
     @InjectMocks
     private CouponService couponService;
 
-    @Test
-    public void createCoupon_WithInvalidTypeZeroAndNonZeroCount_ShouldFail(){
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(0).count(100).build();
+    private CouponRequest createValidCouponRequest() {
+        return CouponRequest.builder()
+                .type(0)
+                .count(0)
+                .discountType(0)
+                .discountAmount(100)
+                .startDate(LocalDateTime.now().plusDays(1))
+                .endDate(LocalDateTime.now().plusDays(30))
+                .expireMinute(60)
+                .build();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "0, 100",
+            "0, -100",
+            "1, 0",
+            "1, -100"
+    })
+    public void createCoupon_WithInvalidTypeAndCount_ShouldFail(int type, int count) {
+        CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
+                .type(type)
+                .count(count)
+                .build();
+
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             couponService.createCoupon(invalidCouponRequest);
         });
@@ -46,32 +69,17 @@ public class CouponServiceTest {
         assertTrue(exception.getMessage().contains("Invalid coupon type"));
     }
 
-    @Test
-    public void createCoupon_WithInvalidTypeOneAndNegativeCount_ShouldFail(){
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(1).count(-100).build();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            couponService.createCoupon(invalidCouponRequest);
-        });
+    @ParameterizedTest
+    @CsvSource({
+            "0, -100",
+            "1, 1000"
+    })
+    public void createCoupon_WithInvalidDiscountType_ShouldFail(int discountType, int discountAmount) {
+        CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
+                .discountType(discountType)
+                .discountAmount(discountAmount)
+                .build();
 
-        assertTrue(exception.getMessage().contains("Invalid coupon type"));
-    }
-
-    @Test
-    public void createCoupon_WithInvalidDiscountTypeZeroAndNegativeAmount_ShouldFail(){
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(0).count(0).discountType(0).discountAmount(-100).build();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            couponService.createCoupon(invalidCouponRequest);
-        });
-
-        assertTrue(exception.getMessage().contains("Invalid discount type"));
-    }
-
-    @Test
-    public void createCoupon_WithInvalidDiscountTypeOneAndAmountGreaterThan100_ShouldFail(){
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(0).count(0).discountType(1).discountAmount(1000).build();
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             couponService.createCoupon(invalidCouponRequest);
         });
@@ -82,12 +90,8 @@ public class CouponServiceTest {
     @Test
     public void createCoupon_WithStartDateBeforeNow_ShouldFail() {
         // Arrange
-        LocalDateTime startDate = LocalDateTime.now().minusDays(1);
-        LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(0).count(0).discountType(0).discountAmount(1)
-                .startDate(startDate)
-                .endDate(endDate)
+        CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
+                .startDate(LocalDateTime.now().minusDays(1))
                 .build();
 
         // Act and Assert
@@ -99,13 +103,9 @@ public class CouponServiceTest {
 
     @Test
     public void createCoupon_WithStartDateAfterEndDate_ShouldFail() {
-        // Arrange
-        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
-        LocalDateTime endDate = LocalDateTime.now();
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(0).count(0).discountType(0).discountAmount(1)
-                .startDate(startDate)
-                .endDate(endDate)
+        CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
+                .startDate(LocalDateTime.now().plusDays(2))
+                .endDate(LocalDateTime.now().plusDays(1))
                 .build();
 
         // Act and Assert
@@ -117,46 +117,14 @@ public class CouponServiceTest {
 
     @Test
     public void createCoupon_WithExpireMinuteLessThanZero_ShouldFail() {
-        // Arrange
-        int expireMinute = -10;
-        CouponRequest invalidCouponRequest = CouponRequest.builder()
-                .type(0).count(0).discountType(0).discountAmount(1)
-                .startDate(LocalDateTime.now().plusMinutes(1))
-                .endDate(LocalDateTime.now().plusMinutes(2))
-                .expireMinute(expireMinute)
+        CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
+                .expireMinute(-10)
                 .build();
 
-        // Act and Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             couponService.createCoupon(invalidCouponRequest);
         });
         assertTrue(exception.getMessage().contains("Invalid expire minute"));
     }
-
-
-
-
-
-    // @ParameterizedTest
-    //    @ValueSource(ints = {0, 1})
-    //    public void createCoupon_WithInvalidTypeAndNegativeOrZeroCount_ShouldFail(int type) {
-    //        CouponRequest invalidCouponRequest = CouponRequest.builder().type(type).count(-100).build();
-    //        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-    //            couponService.createCoupon(invalidCouponRequest);
-    //        });
-    //
-    //        assertTrue(exception.getMessage().contains("Invalid coupon type"));
-    //    }
-    //
-    //    @ParameterizedTest
-    //    @CsvSource({"0, -100", "1, 1000"})
-    //    public void createCoupon_WithInvalidDiscountTypeAndAmount_ShouldFail(int discountType, double discountAmount) {
-    //        CouponRequest invalidCouponRequest = CouponRequest.builder().discountType(discountType).discountAmount(discountAmount).build();
-    //        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-    //            couponService.createCoupon(invalidCouponRequest);
-    //        });
-    //
-    //        assertTrue(exception.getMessage().contains("Invalid discount type"));
-    //    }
 
 }
