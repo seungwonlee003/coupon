@@ -1,5 +1,6 @@
 package com.example.coupon.application;
 
+import com.example.coupon.domain.coupon.Coupon;
 import com.example.coupon.domain.coupon.CouponRepository;
 import com.example.coupon.domain.coupon.CouponStockRepository;
 import com.example.coupon.dto.request.CouponRequest;
@@ -15,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CouponServiceTest {
@@ -58,6 +61,7 @@ public class CouponServiceTest {
         });
 
         assertTrue(exception.getMessage().contains("Invalid coupon type"));
+        verifyNoInteractions(couponRepository);
     }
 
     @ParameterizedTest
@@ -78,6 +82,7 @@ public class CouponServiceTest {
         });
 
         assertTrue(exception.getMessage().contains("Invalid discount type"));
+        verifyNoInteractions(couponRepository);
     }
 
     @Test
@@ -92,6 +97,7 @@ public class CouponServiceTest {
             couponService.createCoupon(invalidCouponRequest);
         });
         assertTrue(exception.getMessage().contains("Invalid date"));
+        verifyNoInteractions(couponRepository);
     }
 
     @Test
@@ -106,6 +112,7 @@ public class CouponServiceTest {
             couponService.createCoupon(invalidCouponRequest);
         });
         assertTrue(exception.getMessage().contains("Invalid date"));
+        verifyNoInteractions(couponRepository);
     }
 
     @ParameterizedTest
@@ -120,6 +127,7 @@ public class CouponServiceTest {
         });
 
         assertTrue(exception.getMessage().contains("Invalid expire minute"));
+        verifyNoInteractions(couponRepository);
     }
 
 

@@ -87,7 +87,7 @@ public class CouponService {
             throw new IllegalArgumentException("Invalid expire minute");
     }
 
-    private void createCouponStock(final Coupon coupon) {
+    public void createCouponStock(final Coupon coupon) {
         couponStockRepository.save(new CouponStock(coupon, coupon.getCount()));
     }
 
