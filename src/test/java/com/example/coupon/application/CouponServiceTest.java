@@ -1,30 +1,20 @@
 package com.example.coupon.application;
 
-import com.example.coupon.domain.coupon.Coupon;
 import com.example.coupon.domain.coupon.CouponRepository;
-import com.example.coupon.domain.coupon.CouponStock;
 import com.example.coupon.domain.coupon.CouponStockRepository;
-import com.example.coupon.dto.request.CouponFetchRequest;
 import com.example.coupon.dto.request.CouponRequest;
-import com.example.coupon.dto.response.CouponResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CouponServiceTest {
@@ -72,7 +62,9 @@ public class CouponServiceTest {
     @ParameterizedTest
     @CsvSource({
             "0, -100",
-            "1, 1000"
+            "0, 0",
+            "1, 101",
+            "1, 0"
     })
     public void createCoupon_WithInvalidDiscountType_ShouldFail(int discountType, int discountAmount) {
         CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
@@ -115,16 +107,19 @@ public class CouponServiceTest {
         assertTrue(exception.getMessage().contains("Invalid date"));
     }
 
-    @Test
-    public void createCoupon_WithExpireMinuteLessThanZero_ShouldFail() {
+    @ParameterizedTest
+    @ValueSource(ints = {-10, 0})
+    public void createCoupon_WithInvalidExpireMinute_ShouldFail(int expireMinute) {
         CouponRequest invalidCouponRequest = createValidCouponRequest().toBuilder()
-                .expireMinute(-10)
+                .expireMinute(expireMinute)
                 .build();
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             couponService.createCoupon(invalidCouponRequest);
         });
+
         assertTrue(exception.getMessage().contains("Invalid expire minute"));
     }
+
 
 }
