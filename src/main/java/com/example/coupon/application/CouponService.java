@@ -29,6 +29,23 @@ public class CouponService {
     // fetches all the coupons and its stock count at once using join fetch
     // Q: use projection since not all fields in stock needs to be retrieved?
     // A: no cuz coupon stock entity isn't big enough for the cost of code complexity
+
+    /*
+    test case:
+        - with last coupon id
+        - without last coupoin id
+        - when size of the request exceeds end of coupon id
+        - when size is less than 0
+        - when last id does not exist in the db
+        - when last id is less than 0
+
+     concern:
+        - should I include the if logic below in the db's level using procedure or some sort?
+        - can't the lastCouponId be 0 - refer to Jojoldu's no-offset paging
+        - should I also include test logics that has already been performed somewhere else? - esp for updateCoupon method
+          does it affect the test coverage? how do I measure test coverage?
+
+     */
     public List<CouponResponse> getAllCoupons(final CouponFetchRequest couponFetchRequest) {
         Slice<Coupon> couponSlice = couponFetchRequest.getLastCouponId() == null ?
                 couponRepository.findFirstNCouponsWithStock(PageRequest.of(0, couponFetchRequest.getLimit(), Sort.by(Sort.Direction.DESC, "id"))) :
